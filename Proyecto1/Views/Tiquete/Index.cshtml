@@ -1,0 +1,75 @@
+﻿@model IEnumerable<Proyecto1.Models.Tiquete>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Tiquetes</h1>
+
+<p>
+    <a asp-action="Create">Crear tiquete</a>
+</p>
+
+<div class="col-4">
+<form asp-controller="Tiquete" asp-action="Index" method="get" class="form-inline mb-3">
+    <div class="form-group mr-2">
+        <label for="searchId">Buscar por ID:</label>
+        <input type="text" id="searchId" name="id" class="form-control form-control-sm">
+    </div>
+    <button type="submit" class="btn btn-primary">Buscar</button>
+</form>
+</div>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Ingreso
+            </th>
+            <th>
+                Salida
+            </th>
+            <th>
+                Placa
+            </th>
+            <th>
+                Parqueo
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.id)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.ingreso)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.salida)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.placa)
+            </td>
+            <td>
+                    @{
+                        int idParqueo = item.idParqueo;
+                        List<Parqueo> listaParqueos = ViewBag.parqueos as List<Parqueo>;
+                        Parqueo parqueo = listaParqueos?.Find(p => p.idParqueo == idParqueo);
+                        string nombreParqueo = parqueo?.nombre ?? "Parqueo no encontrado";
+                    @nombreParqueo
+                }
+            </td>
+            <td>
+                @Html.ActionLink("Marcar salida", "Edit", new { id=item.id }) |
+                @Html.ActionLink("Detalles", "Details", new { id=item.id }) |
+                @Html.ActionLink("Eliminar", "Delete", new { id=item.id })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

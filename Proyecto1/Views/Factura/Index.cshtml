@@ -1,0 +1,59 @@
+﻿@model IEnumerable<Proyecto1.Models.Factura>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Ventas</h1>
+@{
+    string nombre = ViewBag.parqueo != null ? ViewBag.parqueo.nombre : "Todos";
+}
+<h2>Parqueo: @nombre</h2>
+<h2>Total en ventas: @ViewBag.total</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Parqueo
+            </th>
+            <th>
+                Valor de Venta
+            </th>
+            <th>
+                Fecha
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.idFactura)
+            </td>
+            <td>
+                @{
+                    int idParqueo = item.idParqueo;
+                    List<Parqueo> listaParqueos = ViewBag.parqueos as List<Parqueo>;
+                    Parqueo parqueo = listaParqueos?.Find(p => p.idParqueo == idParqueo);
+                    string nombreParqueo = parqueo?.nombre ?? "Parqueo no encontrado";
+                    @nombreParqueo
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.valor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.fecha)
+            </td>
+            <td>
+                @Html.ActionLink("Detalles", "Details", new { id=item.idFactura })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

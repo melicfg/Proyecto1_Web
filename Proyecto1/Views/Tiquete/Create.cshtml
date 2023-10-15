@@ -1,0 +1,48 @@
+﻿@model Proyecto1.Models.Tiquete
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<h1>Crear nuevo Tiquete</h1>
+
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="Create">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group my-3">
+                <label asp-for="id" class="control-label">ID</label>
+                <input asp-for="id" class="form-control" />
+                <span asp-validation-for="id" class="text-danger"></span>
+            </div>
+            <div class="form-group my-3">
+                <label asp-for="ingreso" class="control-label">Hora de Ingreso</label>
+                <input asp-for="ingreso" class="form-control" />
+                <span asp-validation-for="ingreso" class="text-danger"></span>
+            </div>
+            <div class="form-group my-3">
+                <label asp-for="placa" class="control-label">Placa</label>
+                <input asp-for="placa" class="form-control" />
+                <span asp-validation-for="placa" class="text-danger"></span>
+            </div>
+            <div class="form-group my-3">
+                <label asp-for="idParqueo" class="control-label">Parqueo</label>
+                @Html.DropDownList("idParqueo", ViewBag.idParqueo as SelectList, "Seleccione un parqueo...", new { @class = "form-control" })
+                <span asp-validation-for="idParqueo" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <input type="submit" value="Guardar" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+
+<div>
+    <a asp-action="Index">Regresar</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

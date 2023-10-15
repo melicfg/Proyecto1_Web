@@ -1,0 +1,82 @@
+﻿@model IEnumerable<Proyecto1.Models.Parqueo>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Lista de Parqueos</h1>
+
+<p>
+    <a asp-action="Create">Agregar nuevo parqueo</a>
+</p>
+
+<div class="col-4">
+    <form asp-controller="Parqueo" asp-action="Index" method="get" class="form-inline mb-3">
+        <div class="form-group mr-2">
+            <label for="searchId">Buscar por ID:</label>
+            <input type="text" id="searchId" name="id" class="form-control form-control-sm">
+        </div>
+        <button type="submit" class="btn btn-primary">Buscar</button>
+    </form>
+</div>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                ID
+            </th>
+            <th>
+                Nombre
+            </th>
+            <th>
+                Capacidad Maxima
+            </th>
+            <th>
+                Hora de Cierre
+            </th>
+            <th>
+                Hora de Apertura
+            </th>
+            <th>
+                Tarifa/Hora
+            </th>
+            <th>
+                Tarifa/Media Hora
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.idParqueo)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.nombre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.cantidadMax)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.horaCierre)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.horaApertura)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tarifaHora)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.tarifaMediaHora)
+            </td>
+            <td>
+                @Html.ActionLink("Editar", "Edit", new { id=item.idParqueo }) |
+                @Html.ActionLink("Detalles", "Details", new { id=item.idParqueo }) |
+                @Html.ActionLink("Eliminar", "Delete", new { id=item.idParqueo })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

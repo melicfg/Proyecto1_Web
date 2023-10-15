@@ -1,0 +1,61 @@
+﻿@model Proyecto1.Models.Parqueo
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<h1>Eliminar</h1>
+
+<h3>¿Desea eliminar el parqueo?</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2 my-3">
+            ID
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.idParqueo)
+        </dd>
+        <dt class = "col-sm-2 my3">
+            Nombre
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+        <dt class = "col-sm-2 my3">
+            Capacidad Máxima
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.cantidadMax)
+        </dd>
+        <dt class = "col-sm-2 my3">
+            Hora de Cierre
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.horaCierre)
+        </dd>
+        <dt class = "col-sm-2 my3">
+            Hora de Apertura
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.horaApertura)
+        </dd>
+        <dt class = "col-sm-2 my3">
+            Tarifa/Hora
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.tarifaHora)
+        </dd>
+        <dt class = "col-sm-2 my3">
+            Tarifa/Media Hora
+        </dt>
+        <dd class = "col-sm-10 my-3">
+            @Html.DisplayFor(model => model.tarifaMediaHora)
+        </dd>
+    </dl>
+    
+    <form asp-action="Delete">
+        <input type="submit" value="Eliminar" class="btn btn-danger" /> |
+        <a asp-action="Index">Regresar</a>
+    </form>
+</div>

@@ -1,0 +1,79 @@
+﻿@model Proyecto1.Models.Empleado
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<h1>Detalles</h1>
+
+<div>
+    <h4>Empleado</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2 my-3">
+            Numro de empleado
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.numeroEmpleado)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Nombre
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.nombre)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Apellidos
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.apellidos)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Fecha de ingreso
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.ingreso)
+        </dd>
+
+        <dt class="col-sm-2 my-3">
+            Fecha de nacimiento
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.nacimiento)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Cédula
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.cedula)
+        </dd>
+        <dt class = "col-sm-2 my-3">
+            Dirección
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.direccion)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Email
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.email)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Teléfono
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.telefono)
+        </dd>
+        <dt class="col-sm-2 my-3">
+            Nombre de contacto
+        </dt>
+        <dd class="col-sm-10 my-3">
+            @Html.DisplayFor(model => model.contacto)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Editar", "Edit", new { id = Model.numeroEmpleado }) |
+    <a asp-action="Index">Regresar</a>
+</div>

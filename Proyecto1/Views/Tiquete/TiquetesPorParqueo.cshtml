@@ -1,0 +1,35 @@
+﻿
+@{
+    ViewData["Title"] = "TiquetesPorParqueo";
+}
+
+<h1>TiquetesPorParqueo</h1>
+
+<form asp-action="TiquetesPorParqueo" method="post">
+    <div class="form-group">
+        @Html.DropDownList("IdParqueo", ViewBag.Parqueos as SelectList, "Seleccione un parqueo...", new { @class = "form-control", onchange = "this.form.submit();" })
+    </div>
+</form>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Ingreso</th>
+            <th>Salida</th>
+            <th>Placa</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var tiquete in Model)
+        {
+            <tr>
+                <td>@tiquete.id</td>
+                <td>@tiquete.ingreso</td>
+                <td>@tiquete.salida</td>
+                <td>@tiquete.placa</td>
+            </tr>
+        }
+    </tbody>
+</table>
