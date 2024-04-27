@@ -1,8 +1,4 @@
 runtime: aspnetcore
 env: flex
 
-service: your-service-name
-
-env_variables:
-  ASPNETCORE_ENVIRONMENT: development
-  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+service: melissas
