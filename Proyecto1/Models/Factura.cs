@@ -1,4 +1,6 @@
-﻿namespace Proyecto1.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Proyecto1.Models
 {
     public class Factura
     {
@@ -12,7 +14,12 @@
             this.fecha = fecha.HasValue ? fecha.Value : DateTime.MinValue;
 
         }
-        
+
+        public Factura()
+        {
+            // Constructor sin parámetros requerido por Entity Framework Core
+        }
+        [Key]
         public int idFactura { get; set; }
 
         public int idTiquete { get; set; }

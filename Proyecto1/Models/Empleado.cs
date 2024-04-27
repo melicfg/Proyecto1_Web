@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.Contracts;
+﻿using System.ComponentModel.DataAnnotations;
+using System.Diagnostics.Contracts;
 
 namespace Proyecto1.Models
 {
@@ -19,7 +20,7 @@ namespace Proyecto1.Models
             this.contacto = contacto;
   
         }
-
+        [Key]
         public int numeroEmpleado { get; set; }
 
         public string nombre { get; set; }

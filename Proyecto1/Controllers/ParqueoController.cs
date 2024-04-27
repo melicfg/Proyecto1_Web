@@ -1,111 +1,27 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Proyecto1.Interfaces;
 using Proyecto1.Models;
 
 namespace Proyecto1.Controllers
 {
     public class ParqueoController : Controller
     {
+        readonly IParqueoRepository _parqueoRepository;
 
-        private readonly IMemoryCache _cache;
-
-        public ParqueoController(IMemoryCache cache)
+        public ParqueoController(IParqueoRepository parqueoRepository)
         {
-            _cache = cache;
-
-            // Crear un parqueo predeterminado y guardarlo en la caché si no existe
-            if (_cache.Get("ListaParqueos") is null)
-            {
-                var listaParqueos = new List<Parqueo>
-                {
-                    new Parqueo
-                    (
-                        1,
-                        "Parqueo Ejemplo",
-                        100,
-                        "08:00",
-                        "18:00",
-                        10,
-                        5
-                    )
-                };
-
-                _cache.Set("ListaParqueos", listaParqueos);
-            }
+            _parqueoRepository = parqueoRepository;
         }
 
-        private List<Parqueo> ObtenerParqueos()
-        {
-            List<Parqueo> listaParqueos;
-
-            if (_cache.Get("ListaParqueos") is null)
-            {
-                listaParqueos = new List<Parqueo>();
-                _cache.Set("ListaParqueos", listaParqueos);
-            }
-            else
-            {
-
-                listaParqueos = (List<Parqueo>)_cache.Get("ListaParqueos");
-            }
-
-            return listaParqueos;
-        }
-
-        private Parqueo ObtenerParqueoId(int id)
-        {
-
-            List<Parqueo> listaParqueos;
-
-            listaParqueos = ObtenerParqueos();
-            foreach (var parqueo in listaParqueos)
-            {
-                if (parqueo.idParqueo == id)
-                    return parqueo;
-            }
-
-            return null;
-        }
-
-        private void Guardar(Parqueo parqueo)
-        {
-            List<Parqueo> listaParqueos;
-
-            listaParqueos = ObtenerParqueos();
-
-            listaParqueos.Add(parqueo);
-        }
-
-        private void Editar(Parqueo parqueo)
-        {
-            Parqueo parqueoOriginal = ObtenerParqueoId(parqueo.idParqueo);
-            List<Parqueo> listaParqueos;
-            listaParqueos = ObtenerParqueos();
-            
-
-            int indice = listaParqueos.IndexOf(parqueoOriginal);
-
-            listaParqueos[indice] = parqueo;
-
-            _cache.Set("ListaParqueos", listaParqueos);
-        }
-
-        private void Eliminar(Parqueo parqueo)
-        {
-            List<Parqueo> listaParqueos;
-
-            listaParqueos = ObtenerParqueos();
-
-            listaParqueos.Remove(parqueo);
-        }
 
         // GET: ParqueoController
         public ActionResult Index(int? id)
         {
             List<Parqueo> listaParqueos;
 
-            listaParqueos = ObtenerParqueos();
+            listaParqueos = _parqueoRepository.GetParqueos();
 
             // Filtrar los tiquetes si se proporciona un ID en la consulta
             if (id.HasValue)
@@ -119,7 +35,7 @@ namespace Proyecto1.Controllers
         // GET: ParqueoController/Details/5
         public ActionResult Details(int id)
         {
-            Parqueo parqueo = ObtenerParqueoId(id);
+            Parqueo parqueo = _parqueoRepository.GetParqueoId(id);
 
             return View(parqueo);
         }
@@ -135,21 +51,21 @@ namespace Proyecto1.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create(Parqueo parqueo)
         {
-            try
+            if (_parqueoRepository.GetParqueos().Any(p => p.idParqueo.Equals(parqueo.idParqueo)))
             {
-                Guardar(parqueo);
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("idParqueo", "El ID ya se encuentra en uso");
+                return View(parqueo);
             }
-            catch
-            {
-                return View();
+            else {
+                _parqueoRepository.PostParqueo(parqueo);
+                return RedirectToAction("Create");
             }
         }
 
         // GET: ParqueoController/Edit/5
         public ActionResult Edit(int id)
         {
-            Parqueo parqueo = ObtenerParqueoId(id);
+            Parqueo parqueo = _parqueoRepository.GetParqueoId(id);
             return View(parqueo);
         }
 
@@ -160,7 +76,7 @@ namespace Proyecto1.Controllers
         {
             try
             {
-                Editar(parqueo);
+                _parqueoRepository.EditParqueo(id, parqueo);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -172,7 +88,7 @@ namespace Proyecto1.Controllers
         // GET: ParqueoController/Delete/5
         public ActionResult Delete(int id)
         {
-            Parqueo parqueo = ObtenerParqueoId(id);
+            Parqueo parqueo = _parqueoRepository.GetParqueoId(id);
             return View(parqueo);
         }
 
@@ -185,8 +101,8 @@ namespace Proyecto1.Controllers
 
             try
             {
-                Parqueo parqueo = ObtenerParqueoId(id);
-                Eliminar(parqueo);
+                Parqueo parqueo = _parqueoRepository.GetParqueoId(id);
+                _parqueoRepository.DeleteParqueo(parqueo);
                 return RedirectToAction(nameof(Index));
             }
             catch

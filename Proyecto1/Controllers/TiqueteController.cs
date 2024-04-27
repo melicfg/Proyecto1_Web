@@ -2,95 +2,35 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Caching.Memory;
+using Proyecto1.Interfaces;
 using Proyecto1.Models;
 
 namespace Proyecto1.Controllers
 {
     public class TiqueteController : Controller
     {
-        public static List<Tiquete> tiquetes = new List<Tiquete>();
         private int duracionMinutos;
 
-        private readonly IMemoryCache _cache;
-        private readonly FacturaController _facturaController;
-        public TiqueteController(IMemoryCache cache, FacturaController facturaController)
+        readonly ITiqueteRepository _tiqueteRepository;
+        readonly IFacturaRepository _facturaRepository;
+        readonly IParqueoRepository _parqueoRepository;
+
+
+        public TiqueteController(ITiqueteRepository tiqueteRepository, IFacturaRepository facturaRepository, IParqueoRepository parqueoRepository)
         {
-            _cache = cache;
-            _facturaController = facturaController;
+            _tiqueteRepository = tiqueteRepository;
+            _facturaRepository = facturaRepository;
+            _parqueoRepository = parqueoRepository;
         }
 
-        private List<Tiquete> ObtenerTiquetes()
-        {
-            List<Tiquete> listaTiquetes;
-
-            if (_cache.Get("ListaTiquetes") is null)
-            {
-                listaTiquetes = new List<Tiquete>();
-                _cache.Set("ListaTiquetes", listaTiquetes);
-            }
-            else
-            {
-
-                listaTiquetes = (List<Tiquete>)_cache.Get("ListaTiquetes");
-            }
-
-            return listaTiquetes;
-        }
-
-        private Tiquete ObtenerTiqueteId(int id)
-        {
-
-            List<Tiquete> listaTiquetes;
-
-            listaTiquetes = ObtenerTiquetes();
-            foreach (var tiquete in listaTiquetes)
-            {
-                if (tiquete.id == id)
-                    return tiquete;
-            }
-
-            return null;
-        }
-
-        private void Guardar(Tiquete tiquete)
-        {
-            List<Tiquete> ListaTiquetes;
-
-            ListaTiquetes = ObtenerTiquetes();
-
-            ListaTiquetes.Add(tiquete);
-        }
-
-        private void Editar(Tiquete tiquete)
-        {
-            Tiquete tiqueteOriginal = ObtenerTiqueteId(tiquete.id);
-            List<Tiquete> ListaTiquetes;
-            ListaTiquetes = ObtenerTiquetes();
-
-
-            int indice = ListaTiquetes.IndexOf(tiqueteOriginal);
-
-            ListaTiquetes[indice] = tiquete;
-
-            _cache.Set("ListaTiquetes", ListaTiquetes);
-        }
-
-        private void Eliminar(Tiquete tiquete)
-        {
-            List<Tiquete> ListaTiquetes;
-
-            ListaTiquetes = ObtenerTiquetes();
-
-            ListaTiquetes.Remove(tiquete);
-        }
 
         // GET: TiqueteController
         public ActionResult Index(int? id)
         {
-            List<Parqueo> listaParqueos = _cache.Get<List<Parqueo>>("ListaParqueos");
+            List<Parqueo> listaParqueos = _parqueoRepository.GetParqueos();
             ViewBag.parqueos = listaParqueos;
             List<Tiquete> listaTiquetes;
-            listaTiquetes = ObtenerTiquetes();
+            listaTiquetes = _tiqueteRepository.GetTiquetes();
 
             // Filtrar los tiquetes si se proporciona un ID en la consulta
             if (id.HasValue)
@@ -105,14 +45,14 @@ namespace Proyecto1.Controllers
         // GET: TiqueteController/Details/5
         public ActionResult Details(int id)
         {
-            Tiquete tiquete = ObtenerTiqueteId(id);
+            Tiquete tiquete = _tiqueteRepository.GetTiqueteId(id);
             return View(tiquete);
         }
 
         // GET: TiqueteController/Create
         public ActionResult Create()
         {
-            List<Parqueo> listaParqueos = _cache.Get<List<Parqueo>>("ListaParqueos");
+            List<Parqueo> listaParqueos = _parqueoRepository.GetParqueos();
             if (listaParqueos == null)
             {
                 // Si listaParqueos es nula, asignar una lista vacía para evitar el error
@@ -130,8 +70,21 @@ namespace Proyecto1.Controllers
         {
             try
             {
-                Guardar(nuevoTiquete);
-                return RedirectToAction(nameof(Index));
+                if (_tiqueteRepository.GetTiquetes().Any(p => p.id.Equals(nuevoTiquete.id)))
+                {
+                    ModelState.AddModelError("id", "El ID ya se encuentra en uso");
+                    List<Parqueo> listaParqueos = _parqueoRepository.GetParqueos();
+                    ViewBag.idParqueo = new SelectList(listaParqueos, "idParqueo", "nombre");
+                    return View(nuevoTiquete);
+                }
+                else
+                {
+                    _tiqueteRepository.PostTiquete(nuevoTiquete);
+                    List<Parqueo> listaParqueos = _parqueoRepository.GetParqueos();
+                    ViewBag.idParqueo = new SelectList(listaParqueos, "idParqueo", "nombre");
+                    return RedirectToAction(nameof(Index));
+                }
+
             }
             catch
             {
@@ -143,7 +96,7 @@ namespace Proyecto1.Controllers
         public ActionResult Edit(int id)
         {
 
-            Tiquete tiquete = ObtenerTiqueteId(id);
+            Tiquete tiquete = _tiqueteRepository.GetTiqueteId(id);
             return View(tiquete);
         }
 
@@ -161,27 +114,29 @@ namespace Proyecto1.Controllers
                 {
                     // Agregar un error de modelo para mostrar un mensaje en la vista
                     ModelState.AddModelError("salida", "La hora de salida debe ser después de la hora de entrada.");
-                    List<Parqueo> listaParqueos = _cache.Get<List<Parqueo>>("ListaParqueos");
+                    List<Parqueo> listaParqueos = _parqueoRepository.GetParqueos();
                     ViewBag.idParqueo = new SelectList(listaParqueos, "idParqueo", "nombre");
 
                     return View(nuevoTiquete); // Devolver la vista con el mensaje de error
                 }
                 else
                 {
-                    List<Factura> listaFacturas = _facturaController.ObtenerFacturas();
-                    Editar(nuevoTiquete);
+                    List<Factura> listaFacturas = _facturaRepository.GetFacturas();
+                    _tiqueteRepository.EditTiquete(id, nuevoTiquete);
 
                     // Verifica si la factura existe en facturas
 
 
                     int facturaIndice = listaFacturas.FindIndex(f => f.idTiquete == id);
+
                     if (facturaIndice >= 0)
                     {
-                        _facturaController.Editar(nuevoTiquete, facturaIndice);
+                        Factura factura = listaFacturas.FirstOrDefault(f => f.idTiquete == id);
+                        _facturaRepository.EditFactura(nuevoTiquete, factura);
                     }
                     else
                     {
-                        _facturaController.Guardar(nuevoTiquete);
+                        _facturaRepository.PostFactura(nuevoTiquete);
                     }
 
                     return RedirectToAction(nameof(Index));
@@ -198,7 +153,7 @@ namespace Proyecto1.Controllers
         // GET: TiqueteController/Delete/5
         public ActionResult Delete(int id)
         {
-            Tiquete tiquete = ObtenerTiqueteId(id);
+            Tiquete tiquete = _tiqueteRepository.GetTiqueteId(id);
             return View(tiquete);
         }
 
@@ -209,8 +164,8 @@ namespace Proyecto1.Controllers
         {
             try
             {
-                Eliminar(tiquete);
-                _facturaController.Eliminar(id);
+                _tiqueteRepository.DeleteTiquete(tiquete);
+                _facturaRepository.DeleteFactura(id);
                 return RedirectToAction(nameof(Index));
             }
             catch

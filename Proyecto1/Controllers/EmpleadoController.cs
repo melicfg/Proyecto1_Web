@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
+using Proyecto1.Interfaces;
 using Proyecto1.Models;
 
 namespace Proyecto1.Controllers
@@ -8,82 +9,17 @@ namespace Proyecto1.Controllers
     public class EmpleadoController : Controller
     {
         // GET: EmpleadoController
-        public static List<Empleado> empleados = new List<Empleado>();
 
-        private readonly IMemoryCache _cache;
-        public EmpleadoController(IMemoryCache cache)
+        readonly IEmpleadoRepository _empleadoRepository;
+        public EmpleadoController(IEmpleadoRepository empleadoRepository)
         {
-            _cache = cache;
+            _empleadoRepository = empleadoRepository;
         }
 
-        private List<Empleado> ObtenerEmpleado()
-        {
-            List<Empleado> listaEmpleados;
-
-            if (_cache.Get("ListaEmpleados") is null)
-            {
-                listaEmpleados = new List<Empleado>();
-                _cache.Set("ListaEmpleados", listaEmpleados);
-            }
-            else
-            {
-
-                listaEmpleados = (List<Empleado>)_cache.Get("ListaEmpleados");
-            }
-
-            return listaEmpleados;
-        }
-
-        private Empleado ObtenerEmpleadoId(int id)
-        {
-
-            List<Empleado> listaEmpleados;
-
-            listaEmpleados = ObtenerEmpleado();
-            foreach (var empleado in listaEmpleados)
-            {
-                if (empleado.numeroEmpleado == id)
-                    return empleado;
-            }
-
-            return null;
-        }
-
-        private void Guardar(Empleado empleado)
-        {
-            List<Empleado> ListaEmpleados;
-
-            ListaEmpleados = ObtenerEmpleado();
-
-            ListaEmpleados.Add(empleado);
-        }
-
-        private void Editar(Empleado empleado)
-        {
-            Empleado empleadoOriginal = ObtenerEmpleadoId(empleado.numeroEmpleado);
-            List<Empleado>listaEmpleados;
-            listaEmpleados = ObtenerEmpleado();
-
-
-            int indice = listaEmpleados.IndexOf(empleadoOriginal);
-
-            listaEmpleados[indice] = empleado;
-
-            _cache.Set("ListaEmpleados", listaEmpleados);
-        }
-
-        private void Eliminar(Empleado empleado)
-        {
-            List<Empleado> listaEmpleado;
-
-            listaEmpleado = ObtenerEmpleado();
-
-            listaEmpleado.Remove(empleado);
-        }
         public ActionResult Index(int? id)
         {
             List<Empleado> listaEmpleados;
-            listaEmpleados = ObtenerEmpleado();
+            listaEmpleados = _empleadoRepository.GetEmpleados();
             // Filtrar los tiquetes si se proporciona un ID en la consulta
             if (id.HasValue)
             {
@@ -95,7 +31,7 @@ namespace Proyecto1.Controllers
         // GET: EmpleadoController/Details/5
         public ActionResult Details(int id)
         {
-            Empleado empleado = ObtenerEmpleadoId(id);
+            Empleado empleado = _empleadoRepository.GetEmpleadoId(id);
             return View(empleado);
         }
 
@@ -112,7 +48,7 @@ namespace Proyecto1.Controllers
         {
             try
             {
-                Guardar(nuevoEmpleado);
+                _empleadoRepository.PostEmpleado(nuevoEmpleado);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -124,7 +60,7 @@ namespace Proyecto1.Controllers
         // GET: EmpleadoController/Edit/5
         public ActionResult Edit(int id)
         {
-            Empleado empleado = ObtenerEmpleadoId(id);
+            Empleado empleado = _empleadoRepository.GetEmpleadoId(id);
             return View(empleado);
         }
 
@@ -136,7 +72,7 @@ namespace Proyecto1.Controllers
             try
             {
 
-                Editar(nuevoEmpleado);
+                _empleadoRepository.EditEmpleado(id, nuevoEmpleado);
                 return RedirectToAction(nameof(Index));
             }
             catch
@@ -148,7 +84,7 @@ namespace Proyecto1.Controllers
         // GET: EmpleadoController/Delete/5
         public ActionResult Delete(int id)
         {
-            Empleado empleado = ObtenerEmpleadoId(id);
+            Empleado empleado = _empleadoRepository.GetEmpleadoId(id);
             
             return View(empleado);
         }
@@ -160,8 +96,8 @@ namespace Proyecto1.Controllers
         {
             try
             {
-                Empleado empleado = ObtenerEmpleadoId(id);
-                Eliminar(empleado);
+                Empleado empleado = _empleadoRepository.GetEmpleadoId(id);
+                _empleadoRepository.DeleteEmpleado(empleado);
                     
                 return RedirectToAction(nameof(Index));
             }

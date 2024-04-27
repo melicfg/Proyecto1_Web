@@ -19,7 +19,7 @@ namespace Proyecto1.Models
 
         
         }
-
+        [Key]
         public int idParqueo { get; set; }
         public string nombre { get; set; }
 
